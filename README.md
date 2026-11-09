@@ -73,6 +73,13 @@ cmake --build --preset test
 ctest --preset test
 ./build/test/adapter_demo
 
+# 可选：CycloneDDS 传输适配器与链路探测（见 adapters/dds/README.md）
+cmake -S . -B build/dds -DSWARM_ADAPTER_BUILD_DDS=ON
+cmake --build build/dds && ctest --test-dir build/dds
+
+# 机器人端下行指令参考接收器：TaskDirective → DirectiveGate → ExecutionReport
+./build/test/swarm_directive_receiver --port 9879 --robot-id 1 --session-id 7 --map-version 1 --lease-epoch 1
+
 # Python 侧（含 Flower 仿真）
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[simulation,dev]"
@@ -94,6 +101,8 @@ target_link_libraries(your_target PRIVATE swarm_adapter::swarm_adapter)
 include/swarm_adapter/  公开头文件：contract/ link/ fusion/ strategy/ directive/ adapter/
 src/                    C++17 实现
 apps/adapter_demo/      端到端演示（合成数据）
+apps/directive_receiver/ 机器人端下行指令参考接收器（DirectiveGate 准入）
+adapters/dds/           可选 CycloneDDS 传输适配器、链路探测、弱网实验脚本
 proto/swarm_adapter/v1/ 跨语言契约 IDL（protobuf）
 python/swarm_adapter/   特征、记录读取、本地训练、Flower ClientApp/ServerApp
 gateway/                边侧语义调度参考消费方（原 edge-semantic-gateway）

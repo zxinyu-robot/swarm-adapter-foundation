@@ -11,6 +11,7 @@ include(CTest)
 include(GNUInstallDirs)
 
 option(SWARM_ADAPTER_BUILD_DEMO "Build the adapter demo" ON)
+option(SWARM_ADAPTER_BUILD_DDS "Build the optional CycloneDDS transport adapter" OFF)
 
 add_library(swarm_adapter
   src/contract/contract_names.cpp
@@ -27,6 +28,7 @@ add_library(swarm_adapter
   src/strategy/ring_strategy_store.cpp
   src/strategy/comm_selector.cpp
   src/directive/directive_gate.cpp
+  src/directive/directive_codec.cpp
   src/adapter/file_policy_client.cpp
 )
 add_library(swarm_adapter::swarm_adapter ALIAS swarm_adapter)
@@ -56,14 +58,31 @@ if(SWARM_ADAPTER_BUILD_DEMO)
   target_link_libraries(adapter_demo PRIVATE swarm_adapter::swarm_adapter)
 endif()
 
+if(UNIX)
+  add_executable(swarm_directive_receiver apps/directive_receiver/main.cpp)
+  target_link_libraries(swarm_directive_receiver PRIVATE swarm_adapter::swarm_adapter)
+endif()
+
 if(BUILD_TESTING)
-  foreach(test_name link_tests fusion_tests strategy_tests directive_tests)
+  foreach(test_name link_tests fusion_tests strategy_tests directive_tests directive_codec_tests)
     add_executable(${test_name} tests/cpp/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE swarm_adapter::swarm_adapter)
     add_test(NAME ${test_name} COMMAND ${test_name})
   endforeach()
   target_compile_definitions(strategy_tests PRIVATE
     SWARM_ADAPTER_FIXTURE_DIR="${PROJECT_SOURCE_DIR}/tests/fixtures")
+  find_package(Python3 COMPONENTS Interpreter QUIET)
+  if(Python3_FOUND AND TARGET swarm_directive_receiver)
+    add_test(NAME gateway_directive_e2e
+      COMMAND ${CMAKE_COMMAND} -E env
+        SWARM_DIRECTIVE_RECEIVER=$<TARGET_FILE:swarm_directive_receiver>
+        ${Python3_EXECUTABLE} ${PROJECT_SOURCE_DIR}/gateway/tests/test_task_directive.py)
+    set_tests_properties(gateway_directive_e2e PROPERTIES TIMEOUT 60)
+  endif()
+endif()
+
+if(SWARM_ADAPTER_BUILD_DDS)
+  add_subdirectory(adapters/dds)
 endif()
 
 install(TARGETS swarm_adapter EXPORT swarm_adapterTargets

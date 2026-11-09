@@ -1,0 +1,43 @@
+// DDS 线上类型。字段语义与 proto/swarm_adapter/v1/envelope.proto 的 MessageEnvelope 一致；
+// decision_id 只用于链路探测，把接收端统计回指到发送端的配置决策。
+module swarm_adapter_dds {
+  @final
+  struct LinkSample {
+    @key unsigned long robot_id;
+    @key octet message_class;
+    unsigned long session_id;
+    unsigned long long seq_no;
+    unsigned long long decision_id;
+    long long source_time_ns;
+    unsigned long long map_version;
+    double confidence;
+    double uncertainty;
+    long long ttl_ms;
+    string frame_id;
+    sequence<octet> payload;
+  };
+
+  // 接收端发起的往返对时：t1/t4 为接收端时钟，t2/t3 为发送端时钟。
+  @final
+  struct ClockPing {
+    @key unsigned long robot_id;
+    unsigned long long ping_id;
+    long long t1_ns;
+    long long t2_ns;
+    long long t3_ns;
+    boolean reply;
+  };
+
+  // 接收端按 decision_id 累计的效果统计，周期性回传给发送端。
+  @final
+  struct LinkFeedback {
+    @key unsigned long robot_id;
+    @key unsigned long long decision_id;
+    unsigned long received;
+    unsigned long on_time;
+    unsigned long long bytes;
+    long long mean_age_ns;
+    long long clock_uncertainty_ns;
+    boolean clock_synchronized;
+  };
+};

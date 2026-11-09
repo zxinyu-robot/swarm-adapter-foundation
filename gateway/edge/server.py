@@ -14,6 +14,7 @@ from edge.aligner import align_bundle
 from edge.rgb_forward import unpack_rgb_forward_frame
 from edge.schedulers import scheduler_required_layers
 from edge.semantic_directive import build_directive, build_directive_from_qwen_vl, send_directive
+from edge.task_directive import send_task_directive, to_task_directive
 from edge.store import EdgeStore
 from edge.streamvln_bridge import actions_to_frontier_hint, build_action_bias
 from edge.streamvln_client import StreamVLNClient
@@ -97,6 +98,7 @@ class EdgeServer:
         self._store = EdgeStore(rgb_ring_size=args.rgb_ring_size)
         self._directive_lock = threading.Lock()
         self._last_directive_version = -1
+        self._directive_seq = time.time_ns()
         self._required_layers = scheduler_required_layers(args.scheduler)
         self._streamvln: Optional[StreamVLNClient] = None
         self._streamvln_session = ""
@@ -267,16 +269,34 @@ class EdgeServer:
                     bundle=bundle,
                     action_bias=action_bias,
                 )
+            report = None
             try:
-                send_directive(
-                    self._args.go2_host,
-                    self._args.go2_directive_port,
-                    directive,
-                    timeout_s=self._args.directive_timeout_s,
-                )
-            except OSError as exc:
+                if self._args.directive_protocol == "task":
+                    self._directive_seq += 1
+                    task = to_task_directive(
+                        directive,
+                        directive_id=self._directive_seq,
+                        robot_id=self._args.robot_id,
+                        lease_epoch=self._args.lease_epoch,
+                    )
+                    report = send_task_directive(
+                        self._args.go2_host,
+                        self._args.go2_directive_port,
+                        task,
+                        timeout_s=self._args.directive_timeout_s,
+                    )
+                else:
+                    send_directive(
+                        self._args.go2_host,
+                        self._args.go2_directive_port,
+                        directive,
+                        timeout_s=self._args.directive_timeout_s,
+                    )
+            except (OSError, ValueError) as exc:
                 print(f"[directive] send failed: {exc}", flush=True)
                 return
+            if report is not None and report.get("reason") != "ok":
+                print(f"[directive] robot rejected v={map_version}: {report.get('reason')}", flush=True)
             self._last_directive_version = map_version
             self._store.inc_directive_sent()
             self._store.notify_directive(
@@ -388,6 +408,14 @@ def main() -> int:
     parser.add_argument("--align-wait-s", type=float, default=0.25, help="等待 L0/L1/L2 对齐窗口")
     parser.add_argument("--auto-directive", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--directive-timeout-s", type=float, default=3.0)
+    parser.add_argument(
+        "--directive-protocol",
+        choices=["task", "semantic"],
+        default="task",
+        help="task: TaskDirective + ExecutionReport（机器人端 DirectiveGate 准入）; semantic: 旧 SemanticDirective JSONL",
+    )
+    parser.add_argument("--robot-id", type=int, default=1, help="TaskDirective.robot_id")
+    parser.add_argument("--lease-epoch", type=int, default=1, help="TaskDirective.lease_epoch")
     parser.add_argument("--rgb-ring-size", type=int, default=60)
     parser.add_argument("--status-interval-s", type=float, default=30.0)
     parser.add_argument("--foxglove-host", default="127.0.0.1", help="Foxglove WebSocket 监听地址")

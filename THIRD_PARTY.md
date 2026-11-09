@@ -7,6 +7,7 @@
 | [NumPy](https://numpy.org/) ≥ 1.24 | Python 本地训练 | BSD-3-Clause | Python 侧必需 |
 | [Flower](https://github.com/adap/flower) ≥ 1.43, < 2 | 联邦学习 ClientApp / ServerApp | Apache-2.0 | 可选（`.[fl]`） |
 | [Ray](https://github.com/ray-project/ray)（经 `flwr[simulation]`） | Flower 本机仿真 | Apache-2.0 | 可选（`.[simulation]`） |
+| [Eclipse Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) ≥ 0.10（C 接口 + `idlc`） | 可选 DDS 传输适配器 `adapters/dds` | EPL-2.0 或 EDL-1.0 | 可选（`-DSWARM_ADAPTER_BUILD_DDS=ON`） |
 | [pytest](https://pytest.org/)、[Ruff](https://github.com/astral-sh/ruff) | 测试与检查 | MIT | 开发时 |
 
 `gateway/` 的可选依赖（Qwen2.5-VL、torch、transformers、ROS 2、Gazebo、Foxglove 等）见 `gateway/requirements-qwen-vl.txt` 与 `gateway/README.md`，均不属于 C++ 核心和 Python 联邦适配的依赖。

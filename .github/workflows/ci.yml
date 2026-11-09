@@ -33,6 +33,14 @@ jobs:
           cmake -S build/consumer -B build/consumer/out -DCMAKE_PREFIX_PATH="$PWD/build/prefix"
           cmake --build build/consumer/out
           ./build/consumer/out/consumer
+  dds:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y cyclonedds-dev cyclonedds-tools
+      - run: cmake -S . -B build/dds -DSWARM_ADAPTER_BUILD_DDS=ON -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build/dds -j
+      - run: ctest --test-dir build/dds --output-on-failure
   python:
     runs-on: ubuntu-latest
     steps:
