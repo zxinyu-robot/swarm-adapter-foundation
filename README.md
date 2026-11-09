@@ -54,13 +54,30 @@
  └────────────────────────────────────────────────────────────────┘
 ```
 
+## 三条通道
+
+| 通道 | 方向 | 契约 | 实现 |
+| --- | --- | --- | --- |
+| 状态通道 | 上行 | `MessageEnvelope` + `TopicPolicy` | `AdaptiveQosController` 定基准，`SafetyEnvelope` 限幅，`Transport` 发送；`DdsTransport` 把 `TopicPolicy` 映射成 DDS QoS |
+| 学习通道 | 双向 | `PolicyUpdate` / `RoundSummary`（proto） | 端侧 `RingStrategyStore` 出样本，Flower ClientApp 本地训练，`PolicyGate` 旁路比对后生效 |
+| 指令通道 | 下行 + 回执 | `TaskDirective` / `ExecutionReport`（JSONL，字段与 proto 一致） | `gateway/` 把语义调度结果转成 `TaskDirective`，机器人端 `DirectiveGate` 准入后回 `ExecutionReport` |
+
+## 链路实测要点
+
+`adapters/dds/scripts/` 里的两个脚本分别在单机网络命名空间和两台主机之间（WireGuard 隧道）跑真实 DDS，
+叠加 `tc netem` 劣化，结果直接写进端侧策略库，可被 Flower 客户端读成训练样本。完整数字和条件见 [docs/evidence.md](docs/evidence.md)。
+
+- 跨机链路 RTT 约 160 ms 时，Reliable 重传后送达率接近 1，但准时率（deadline 200 ms）低于 BestEffort。
+  这类“配置 → 效果”的关系只能在端侧记录里学到，规则表写不出来。
+- 拥塞档位下往返对时误差升到 100 ms 以上，这些窗口按规则不进训练集；对时方法还需要改进。
+
 ## Adapter 接口
 
 | 接口 | 头文件 | 作用 | 首版实现 |
 | --- | --- | --- | --- |
-| `Transport` | `adapter/transport.h` | 怎么传 | 由使用方实现（DDS、共享内存等） |
+| `Transport` | `adapter/transport.h` | 怎么传 | `DdsTransport`（可选包 `adapters/dds`，CycloneDDS）；共享内存等由使用方实现 |
 | `FederatedClient` | `adapter/federated_client.h` | 和联邦框架对接 | `FilePolicyClient`（读 Flower 客户端写的策略文件） |
-| `RobotBackend` | `adapter/robot_backend.h` | 和具体机器人对接 | 由使用方实现（Go2、无人机） |
+| `RobotBackend` | `adapter/robot_backend.h` | 和具体机器人对接 | 由使用方实现（Go2、无人机）；下行准入参考实现见 `apps/directive_receiver` |
 | `MapBackend` | `adapter/map_backend.h` | 建图后端 | `LocalMapBackend`（基于 `SubmapRegistry`） |
 | `StrategyStore` | `adapter/strategy_store.h` | 端侧策略记录 | `RingStrategyStore`（环形缓冲 + 只追加 JSONL） |
 
@@ -123,7 +140,7 @@ docs/                   契约、接口、证据
 ## 不包含
 
 - 状态估计 / 卡尔曼滤波实现，以及任何把联邦输出写回滤波器的通道。
-- ROS 2 / DDS 厂商适配器、真实 Mesh 网络配置、真机数据。
+- ROS 2 适配器、真实 Mesh 网络配置、真机数据。DDS 只提供 CycloneDDS 一种实现。
 - protobuf 生成代码（IDL 已定义，生成与 gRPC 传输后续接入）。
 
 ## 许可证
