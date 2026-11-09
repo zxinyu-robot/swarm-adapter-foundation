@@ -62,3 +62,17 @@ sudo adapters/dds/scripts/netns_netem_probe.sh build/dds/adapters/dds/swarm_link
 ```
 
 这是真实 DDS 协议栈和内核网络，但链路劣化是注入的，不代表真实无线或广域网。结果见 `docs/evidence.md`。
+
+## 跨机实验
+
+`scripts/wg_netem_probe.sh` 在本机跑 tx、经 SSH 在远端跑 rx，DDS 走两机之间的隧道网卡（例如 WireGuard `wg0`）。
+WireGuard 不转发组播，CycloneDDS 需关组播并写明单播 peer：
+
+```xml
+<CycloneDDS><Domain id="any">
+  <General><Interfaces><NetworkInterface name="wg0"/></Interfaces><AllowMulticast>false</AllowMulticast></General>
+  <Discovery><ParticipantIndex>auto</ParticipantIndex><Peers><Peer address="10.88.0.1"/></Peers></Discovery>
+</Domain></CycloneDDS>
+```
+
+先跑 baseline（只有真实链路），再在两端 `wg0` 出口叠加与单机实验相同的三档 netem。

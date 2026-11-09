@@ -17,9 +17,11 @@
 | --- | --- | --- |
 | C++17 核心（`include/`、`src/`） | Linux / macOS，无 ROS 依赖 | 单元测试 + 合成数据 Demo |
 | Python 联邦适配（`python/swarm_adapter`） | Python 3.10+，Flower 1.43 | 单元测试 + Flower 本机仿真（2 节点 × 3 轮，合成数据） |
-| 边侧参考消费方（`gateway/`） | Python，Qwen-VL / Gazebo 为可选 | 原仓 28 项单测；仿真链路见 `gateway/README.md` |
+| 边侧参考消费方（`gateway/`） | Python，Qwen-VL / Gazebo 为可选 | 原仓 28 项单测 + TaskDirective 下行 5 项；仿真链路见 `gateway/README.md` |
+| 下行指令接收器（`apps/directive_receiver`） | Linux / macOS | 与网关进程间端到端测试（DirectiveGate 准入 + ExecutionReport） |
+| CycloneDDS 传输适配器（`adapters/dds`，可选） | Linux，CycloneDDS 0.10.4 | 单元测试；单机网络命名空间 + netem；两台主机经 WireGuard 跨机 + netem |
 
-没有真机数据，所有数字都是合成数据下的接口验证，不代表真机性能。逐条证据见 [docs/evidence.md](docs/evidence.md)。
+没有真机数据。链路数字来自真实 DDS 协议栈在单机网络模拟和一条跨境公网链路上的单次运行，不代表机器人之间的无线链路；其余数字都是合成数据下的接口验证。逐条证据见 [docs/evidence.md](docs/evidence.md)。
 
 ## 核心原则
 
