@@ -1,0 +1,25 @@
+network:
+  transport: dds_rtps_udp
+  mesh: ieee_802_11s
+  transition_confirmation_samples: 2
+
+thresholds:
+  healthy:
+    maximum_packet_loss_ratio: 0.05
+    maximum_one_way_latency_ms: 50
+    maximum_queue_fill_ratio: 0.50
+  critical:
+    minimum_packet_loss_ratio: 0.25
+    minimum_one_way_latency_ms: 250
+    minimum_queue_fill_ratio: 0.90
+
+time_sync:
+  primary: ptp
+  fallback: ntp
+  maximum_clock_deviation_ms: 2
+
+keyframes:
+  healthy_rate_hz: 10
+  constrained_rate_hz: 5
+  critical_rate_hz: 2
+  force_uncertainty: 0.80

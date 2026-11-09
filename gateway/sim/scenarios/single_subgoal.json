@@ -1,0 +1,67 @@
+{
+  "name": "single_subgoal",
+  "description": "单 frontier，验证连通性、三层对齐与延迟基线",
+  "session_id": "sim_single",
+  "tick_hz": 2.0,
+  "task": {
+    "instruction": "沿通道前进",
+    "goal_room_type": "",
+    "language": "zh"
+  },
+  "steps": [
+    {
+      "version": 1,
+      "expected_frontier_id": "bt_next_subgoal",
+      "robot_pose": {"x": 0.5, "y": 0.0, "z": 0.0, "yaw_deg": 0.0},
+      "nodes": [{"node_id": "cell_0_0", "visited": false, "frontier_count": 1}],
+      "frontiers": [
+        {
+          "frontier_id": "bt_next_subgoal",
+          "position": {"x": 1.2, "y": 0.0, "z": 0.0},
+          "attached_node_id": "cell_0_0",
+          "geom_score": 0.9
+        }
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "forward_path", "stream_field": "video360p"},
+        "task": {"instruction": "沿通道前进"}
+      }
+    },
+    {
+      "version": 2,
+      "expected_frontier_id": "bt_next_subgoal",
+      "robot_pose": {"x": 0.8, "y": 0.0, "z": 0.0, "yaw_deg": 0.0},
+      "nodes": [{"node_id": "cell_0_0", "visited": false, "frontier_count": 1}],
+      "frontiers": [
+        {
+          "frontier_id": "bt_next_subgoal",
+          "position": {"x": 1.2, "y": 0.0, "z": 0.0},
+          "attached_node_id": "cell_0_0",
+          "geom_score": 0.88
+        }
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "forward_path", "stream_field": "video360p"},
+        "task": {"instruction": "沿通道前进"}
+      }
+    },
+    {
+      "version": 3,
+      "expected_frontier_id": "bt_next_subgoal",
+      "robot_pose": {"x": 1.0, "y": 0.0, "z": 0.0, "yaw_deg": 0.0},
+      "nodes": [{"node_id": "cell_0_1", "visited": false, "frontier_count": 1}],
+      "frontiers": [
+        {
+          "frontier_id": "bt_next_subgoal",
+          "position": {"x": 1.5, "y": 0.0, "z": 0.0},
+          "attached_node_id": "cell_0_1",
+          "geom_score": 0.85
+        }
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "forward_path", "stream_field": "video360p"},
+        "task": {"instruction": "沿通道前进"}
+      }
+    }
+  ]
+}

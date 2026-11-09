@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="corridor">
+    <physics name="1ms" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun">
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.5 0.2 -1</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="c">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        </collision>
+        <visual name="v">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+          <material><ambient>0.85 0.85 0.82 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_left">
+      <static>true</static>
+      <pose>-3 2 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.1 8 1</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 8 1</size></box></geometry>
+          <material><ambient>0.7 0.7 0.75 1</ambient></material></visual>
+      </link>
+    </model>
+
+    <model name="wall_right">
+      <static>true</static>
+      <pose>3 2 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.1 8 1</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.1 8 1</size></box></geometry>
+          <material><ambient>0.7 0.7 0.75 1</ambient></material></visual>
+      </link>
+    </model>
+
+
+    <model name="marker_fr_hall">
+      <static>true</static>
+      <pose>2.0 0.0 0.25 0 0 0</pose>
+      <link name="link">
+        <visual name="v">
+          <geometry><sphere><radius>0.15</radius></sphere></geometry>
+          <material><ambient>0.9 0.25 0.2 1.0</ambient><diffuse>0.9 0.25 0.2 1.0</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_fr_kitchen">
+      <static>true</static>
+      <pose>0.0 2.0 0.25 0 0 0</pose>
+      <link name="link">
+        <visual name="v">
+          <geometry><sphere><radius>0.15</radius></sphere></geometry>
+          <material><ambient>0.2 0.85 0.35 1.0</ambient><diffuse>0.2 0.85 0.35 1.0</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="marker_fr_bedroom">
+      <static>true</static>
+      <pose>-2.0 0.0 0.25 0 0 0</pose>
+      <link name="link">
+        <visual name="v">
+          <geometry><sphere><radius>0.15</radius></sphere></geometry>
+          <material><ambient>0.55 0.35 0.9 1.0</ambient><diffuse>0.55 0.35 0.9 1.0</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <include>
+      <uri>model://go2_stand</uri>
+      <name>go2</name>
+      <pose>0.0 0.0 0.21 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

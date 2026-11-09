@@ -1,0 +1,26 @@
+.cache/
+.history/
+**/.history/
+.venv-qwen/
+.venv-sim/
+__pycache__/
+*.pyc
+*.pyo
+Go2_URDF.zip
+checkpoints/
+third_party/StreamVLN/
+sim/reports/
+sim/traces/
+gazebo/reports/
+edge/mvpi1/planner.log
+*.safetensors
+*.pt
+*.bin
+
+# Go2 网格模型（Unitree 第三方资产，不随仓库分发）
+assets/GO2_URDF/
+gazebo/models/*/meshes/
+gazebo/models/*/dae/
+*.dae
+*.stl
+.DS_Store

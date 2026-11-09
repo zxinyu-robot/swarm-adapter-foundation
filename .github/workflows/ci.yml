@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake --preset test
+      - run: cmake --build --preset test
+      - run: ctest --preset test
+      - run: ./build/test/adapter_demo
+      - name: install + find_package
+        run: |
+          cmake --install build/test --prefix "$PWD/build/prefix"
+          mkdir -p build/consumer
+          printf '%s\n' 'cmake_minimum_required(VERSION 3.16)' 'project(consumer CXX)' \
+            'find_package(swarm_adapter REQUIRED)' \
+            'add_executable(consumer main.cpp)' \
+            'target_link_libraries(consumer PRIVATE swarm_adapter::swarm_adapter)' \
+            > build/consumer/CMakeLists.txt
+          printf '%s\n' '#include "swarm_adapter/strategy/safety_envelope.h"' \
+            'int main() { swarm_adapter::strategy::SafetyEnvelope e; return e.candidates(swarm_adapter::MessageClass::Pose).empty(); }' \
+            > build/consumer/main.cpp
+          cmake -S build/consumer -B build/consumer/out -DCMAKE_PREFIX_PATH="$PWD/build/prefix"
+          cmake --build build/consumer/out
+          ./build/consumer/out/consumer
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[simulation,dev]"
+      - run: ruff check python tests/python
+      - run: pytest -q tests/python
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pytest
+      - run: pytest -q tests
+        working-directory: gateway

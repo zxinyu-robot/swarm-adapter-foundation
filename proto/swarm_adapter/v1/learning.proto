@@ -1,0 +1,61 @@
+// 学习通道：联邦端下发通信策略权重，端侧回传汇总指标。原始记录不上传。
+// C++ 对应 include/swarm_adapter/strategy/{features,policy_model,policy_gate}.h。
+syntax = "proto3";
+
+package swarm_adapter.v1;
+
+import "swarm_adapter/v1/envelope.proto";
+
+// 链路特征（输入）。只含通信层与信息新鲜度，不含任何滤波器内部状态。
+message LinkFeatures {
+  double packet_loss_ratio = 1;  // [0, 1]
+  double latency_s = 2;          // 单向时延，秒
+  double queue_fill_ratio = 3;   // [0, 1]
+  double age_ratio = 4;          // age / deadline，>= 0，特征里截断到 4
+}
+
+// 通信动作：相对本地规则基准配置的调整。
+message CommAction {
+  double rate_scale = 1;         // [0, 1]，只允许降频，不允许超过本地规则频率
+  int32 compression_level = 2;   // [0, 9]
+  bool reliable = 3;
+}
+
+// 效果回执（标签）。
+message Outcome {
+  double delivered_ratio = 1;  // [0, 1]
+  double on_time_ratio = 2;    // [0, 1]
+  double bandwidth_ratio = 3;  // 占用带宽 / 可用带宽，>= 0
+}
+
+// 线性效用模型权重：utility = weights · phi(features, action)，长度固定为 feature_dim。
+message PolicyUpdate {
+  uint64 policy_version = 1;  // 单调递增，0 非法
+  uint64 round_id = 2;
+  uint32 feature_dim = 3;     // 当前为 12
+  repeated double weights = 4;
+}
+
+enum GateState {
+  GATE_STATE_LOCAL_RULES = 0;
+  GATE_STATE_SHADOW = 1;
+  GATE_STATE_ACTIVE = 2;
+}
+
+// 端侧策略门状态变化（生效 / 旁路比对拒绝 / 回滚）。
+message PolicyGateEvent {
+  uint64 policy_version = 1;
+  uint64 round_id = 2;
+  GateState state = 3;
+  ReasonCode reason = 4;
+  double candidate_mse = 5;
+  double active_mse = 6;
+}
+
+// 本轮本地训练汇总。
+message RoundSummary {
+  uint64 round_id = 1;
+  uint64 policy_version = 2;
+  uint64 num_samples = 3;
+  double mean_utility = 4;
+}

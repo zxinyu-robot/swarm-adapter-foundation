@@ -1,0 +1,27 @@
+// 指令通道：调度端下发任务指令，本机校验后执行并回执。调度端只有建议权。
+// C++ 对应 include/swarm_adapter/contract/directive.h 与 directive/directive_gate.h。
+syntax = "proto3";
+
+package swarm_adapter.v1;
+
+import "swarm_adapter/v1/envelope.proto";
+
+message TaskDirective {
+  uint64 directive_id = 1;  // 0 非法；本机按此去重
+  uint32 robot_id = 2;
+  uint32 session_id = 3;
+  uint64 map_version = 4;   // 必须等于本机当前地图版本
+  uint64 lease_epoch = 5;   // 必须等于本机当前租约
+  int64 issued_at_ns = 6;
+  int64 ttl_ms = 7;         // > 0
+  string target_node_id = 8;
+  double confidence = 9;    // [0, 1]
+}
+
+message ExecutionReport {
+  uint64 directive_id = 1;
+  uint32 robot_id = 2;
+  ReasonCode reason = 3;
+  bool executed = 4;
+  int64 reported_at_ns = 5;
+}

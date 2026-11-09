@@ -1,0 +1,54 @@
+{
+  "name": "corridor_3frontiers",
+  "description": "三岔走廊：L0 geom 选 hall，L0+L1+L2 应选 kitchen",
+  "session_id": "sim_corridor",
+  "tick_hz": 1.0,
+  "task": {
+    "instruction": "找厨房",
+    "goal_room_type": "kitchen",
+    "language": "zh"
+  },
+  "steps": [
+    {
+      "version": 1,
+      "expected_frontier_id": "fr_kitchen",
+      "robot_pose": {"x": 0.0, "y": 0.0, "z": 0.0, "yaw_deg": 0.0},
+      "nodes": [{"node_id": "cell_0_0", "visited": true, "frontier_count": 3}],
+      "frontiers": [
+        {
+          "frontier_id": "fr_hall",
+          "position": {"x": 2.0, "y": 0.0, "z": 0.0},
+          "geom_score": 0.95
+        },
+        {
+          "frontier_id": "fr_kitchen",
+          "position": {"x": 0.0, "y": 2.0, "z": 0.0},
+          "geom_score": 0.72
+        },
+        {
+          "frontier_id": "fr_bedroom",
+          "position": {"x": -2.0, "y": 0.0, "z": 0.0},
+          "geom_score": 0.80
+        }
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "kitchen_door", "stream_field": "video360p"},
+        "task": {"instruction": "找厨房", "goal_room_type": "kitchen"}
+      }
+    },
+    {
+      "version": 2,
+      "expected_frontier_id": "fr_kitchen",
+      "robot_pose": {"x": 0.1, "y": 0.2, "z": 0.0, "yaw_deg": 5.0},
+      "nodes": [{"node_id": "cell_0_0", "visited": true, "frontier_count": 2}],
+      "frontiers": [
+        {"frontier_id": "fr_hall", "position": {"x": 2.0, "y": 0.0, "z": 0.0}, "geom_score": 0.92},
+        {"frontier_id": "fr_kitchen", "position": {"x": 0.0, "y": 1.8, "z": 0.0}, "geom_score": 0.78}
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "kitchen_closer", "stream_field": "video360p"},
+        "task": {"instruction": "找厨房", "goal_room_type": "kitchen"}
+      }
+    }
+  ]
+}

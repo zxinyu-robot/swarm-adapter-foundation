@@ -1,0 +1,161 @@
+{
+  "configById": {
+    "3D!rgbws01": {
+      "cameraState": {
+        "distance": 15,
+        "perspective": false,
+        "phi": 0.7853981633974483,
+        "target": [0, 0, 0],
+        "targetOffset": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "thetaOffset": 0.7853981633974483,
+        "fovy": 0.7853981633974483,
+        "near": 0.01,
+        "far": 5000
+      },
+      "followMode": "follow-none",
+      "fixedFrame": "map",
+      "scene": {
+        "transforms": {
+          "enablePreloading": true
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/map/subgraph": {
+          "visible": true
+        },
+        "/map/robot": {
+          "visible": true
+        },
+        "/submap/stitched": {
+          "visible": true,
+          "pointSize": 2.5,
+          "pointShape": "circle",
+          "decayTime": 0,
+          "colorMode": "colormap",
+          "colorField": "intensity",
+          "colorMap": "turbo"
+        }
+      },
+      "layers": {
+        "a1b2c3d4-e5f6-7890-abcd-ef1234567890": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "layerId": "foxglove.Grid",
+          "frameId": "map",
+          "divisions": 15,
+          "lineWidth": 0.5,
+          "color": "#ffffff44",
+          "position": [0, 0, 0],
+          "rotation": [0, 0, 0],
+          "order": 1,
+          "size": 30
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "Image!rgbws02": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [0, 0, 0],
+        "targetOffset": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/vision/rgb"
+      }
+    },
+    "Log!rgbws03": {
+      "searchTerms": [],
+      "minLogLevel": 1,
+      "topicToRender": "/model/directive_out",
+      "nameFilter": {},
+      "fontSize": 12,
+      "showLevel": true,
+      "showTime": true,
+      "showName": true,
+      "showSourceLocation": false
+    },
+    "Log!rgbws04": {
+      "searchTerms": [],
+      "minLogLevel": 1,
+      "topicToRender": "/model/scheduler_input",
+      "nameFilter": {},
+      "fontSize": 12,
+      "showLevel": true,
+      "showTime": true,
+      "showName": true,
+      "showSourceLocation": false
+    },
+    "Log!rgbws05": {
+      "searchTerms": [],
+      "minLogLevel": 1,
+      "topicToRender": "/network/link_status",
+      "nameFilter": {},
+      "fontSize": 12,
+      "showLevel": true,
+      "showTime": true,
+      "showName": true,
+      "showSourceLocation": false
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "linkedGlobalVariables": [],
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": "3D!rgbws01",
+    "second": {
+      "direction": "column",
+      "first": "Image!rgbws02",
+      "second": {
+        "direction": "column",
+        "first": "Log!rgbws03",
+        "second": {
+          "direction": "row",
+          "first": "Log!rgbws04",
+          "second": "Log!rgbws05",
+          "splitPercentage": 50
+        },
+        "splitPercentage": 36
+      },
+      "splitPercentage": 38
+    },
+    "splitPercentage": 62
+  }
+}

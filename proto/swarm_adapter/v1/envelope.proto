@@ -1,0 +1,77 @@
+// 统一信封与结果码。C++ 对应 include/swarm_adapter/contract/{envelope,reason_code}.h，
+// tests/python/test_contract_parity.py 校验两边枚举值一致。
+// 字段演进：只追加新字段号，不复用、不改语义；删除字段用 reserved。
+syntax = "proto3";
+
+package swarm_adapter.v1;
+
+enum ReasonCode {
+  REASON_CODE_OK = 0;
+  REASON_CODE_INVALID_INPUT = 1;
+  REASON_CODE_UNKNOWN_MAP_VERSION = 2;
+  REASON_CODE_EXPIRED = 3;
+  REASON_CODE_CLOCK_UNSYNCHRONIZED = 4;
+  REASON_CODE_DUPLICATE = 5;
+  REASON_CODE_MISSING_REFERENCE = 6;
+  REASON_CODE_ROUND_MISMATCH = 7;
+  REASON_CODE_STALE_POLICY_VERSION = 8;
+  REASON_CODE_OUTSIDE_SAFETY_ENVELOPE = 9;
+  REASON_CODE_SHADOW_REJECTED = 10;
+  REASON_CODE_ROLLED_BACK = 11;
+  REASON_CODE_LEASE_MISMATCH = 12;
+  REASON_CODE_MAP_VERSION_MISMATCH = 13;
+  REASON_CODE_SAFETY_HOLD = 14;
+  REASON_CODE_IO_ERROR = 15;
+}
+
+enum MessageClass {
+  MESSAGE_CLASS_POSE = 0;
+  MESSAGE_CLASS_HEALTH = 1;
+  MESSAGE_CLASS_KEYFRAME = 2;
+  MESSAGE_CLASS_SUBMAP = 3;
+  MESSAGE_CLASS_MISSION = 4;
+  MESSAGE_CLASS_LEARNING_UPDATE = 5;
+  MESSAGE_CLASS_DIRECTIVE = 6;
+}
+
+enum Reliability {
+  RELIABILITY_BEST_EFFORT = 0;
+  RELIABILITY_RELIABLE = 1;
+}
+
+// 任何跨机数据都带此信封。时间单位纳秒，发送端时钟；接收端经时钟偏差校正后计算新鲜度。
+// 多条数据之间按 map_version 配对；map_version = 0 表示未知，接收端拒收。
+message MessageEnvelope {
+  uint32 robot_id = 1;
+  uint32 session_id = 2;
+  uint64 sequence = 3;
+  int64 source_time_ns = 4;
+  MessageClass message_class = 5;
+  string frame_id = 6;
+  uint64 map_version = 7;
+  double confidence = 8;   // [0, 1]
+  double uncertainty = 9;  // 只读特征，策略不可写
+  int64 ttl_ms = 10;       // 自 source_time_ns 起算
+  uint64 payload_bytes = 11;
+}
+
+// 单个消息类别的通信配置：联邦策略唯一允许调整的对象。
+message TopicPolicy {
+  Reliability reliability = 1;
+  uint32 history_depth = 2;
+  double target_rate_hz = 3;
+  int64 deadline_ms = 4;
+  uint32 priority = 5;
+  int32 compression_level = 6;  // [0, 9]
+}
+
+// 接收端计算的新鲜度样本。
+message FreshnessSample {
+  MessageClass message_class = 1;
+  int64 age_ns = 2;
+  int64 deadline_ns = 3;
+  double age_ratio = 4;
+  bool on_time = 5;
+  int64 clock_uncertainty_ns = 6;
+  bool trainable = 7;
+}

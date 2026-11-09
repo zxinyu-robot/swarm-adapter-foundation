@@ -1,0 +1,29 @@
+{
+  "name": "streamvln_kitchen",
+  "description": "StreamVLN 官方动作协议：厨房指令应对齐 ←↑↑STOP，frontier=fr_kitchen",
+  "session_id": "sim_streamvln",
+  "tick_hz": 1.0,
+  "task": {
+    "instruction": "找厨房",
+    "goal_room_type": "kitchen",
+    "language": "zh"
+  },
+  "steps": [
+    {
+      "version": 1,
+      "expected_frontier_id": "fr_kitchen",
+      "expected_vln_actions": [2, 1, 1, 0],
+      "robot_pose": {"x": 0.0, "y": 0.0, "z": 0.0, "yaw_deg": 0.0},
+      "nodes": [{"node_id": "cell_0_0", "visited": true, "frontier_count": 3}],
+      "frontiers": [
+        {"frontier_id": "fr_hall", "position": {"x": 2.0, "y": 0.0, "z": 0.0}, "geom_score": 0.95},
+        {"frontier_id": "fr_kitchen", "position": {"x": 0.0, "y": 2.0, "z": 0.0}, "geom_score": 0.72},
+        {"frontier_id": "fr_bedroom", "position": {"x": -2.0, "y": 0.0, "z": 0.0}, "geom_score": 0.80}
+      ],
+      "layers": {
+        "vision": {"rgb_tag": "kitchen_door", "stream_field": "video360p"},
+        "task": {"instruction": "找厨房", "goal_room_type": "kitchen"}
+      }
+    }
+  ]
+}

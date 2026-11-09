@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarm-adapter"
+version = "0.1.0"
+description = "Python side of swarm-adapter-foundation: features, on-robot records, local training and Flower adapter"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+fl = ["flwr>=1.43,<2"]
+simulation = ["flwr[simulation]>=1.43,<2"]
+dev = ["pytest>=7", "ruff>=0.5"]
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["gateway"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.flwr.app]
+publisher = "zxinyu-robot"
+
+[tool.flwr.app.components]
+serverapp = "swarm_adapter.fl.server_app:app"
+clientapp = "swarm_adapter.fl.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
+fraction-train = 1.0
+min-nodes = 2
+l2 = 0.01
