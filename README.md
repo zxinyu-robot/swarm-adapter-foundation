@@ -147,6 +147,10 @@ docs/                   契约、接口、证据
 
 [MIT](LICENSE)
 
+## 引用与相关工作
+
+本项目聚合并扩展了已有的 Adapter、边侧调度和联邦学习工作。上游仓库、Flower、GrAco 数据集及其在本项目中的具体用途、继承边界和署名说明见 [docs/references.md](docs/references.md)。
+
 ## Flower communication MVP: real GrAco ground sample
 
 **实验与结果整理：zxinyu**
