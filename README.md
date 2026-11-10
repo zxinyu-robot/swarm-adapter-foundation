@@ -146,3 +146,49 @@ docs/                   契约、接口、证据
 ## 许可证
 
 [MIT](LICENSE)
+
+## Flower communication MVP: real GrAco ground sample
+
+**实验与结果整理：zxinyu**
+
+已使用真实 GrAco ground ROS bag 完成通信建议链路闭环验证：
+
+```text
+normalized events -> communication features -> Flower ClientApp
+                 -> FedAvg global weights -> TopicPolicy
+                 ->端侧策略安装与通信 utility 评估
+```
+
+本次 MVP 将同一 ground sample 按时间窗口划分为两个客户端 `node_0` 和 `node_1`，仅用于验证 Flower 联邦通信建议链路；这两个客户端不代表 ground/aerial 异构机器人。RTK ground truth 仅作为数据参考，不进入通信策略训练特征，也不参与 SLAM、建图、定位或滤波流程。
+
+### FedAvg 验证结果
+
+| 项目 | 结果 |
+| --- | --- |
+| 客户端 | 2 个真实 ground 时间窗口客户端 |
+| 联邦轮数 | 3 轮 FedAvg |
+| 每轮返回 | 2/2 客户端训练成功，2/2 客户端评估成功 |
+| 第 1 轮 `mse-before` | 0.82736 |
+| 第 1 轮 `mse-after` | 0.27134 |
+| 第 1 轮 `eval-mse` | 0.27135 |
+| 第 2/3 轮 `mse-after` | 约 0.27134 |
+| 第 2/3 轮 `eval-mse` | 约 0.27135 |
+
+最终全局策略已写入两个客户端的策略文件，策略输出仍只允许影响 `TopicPolicy`；`SafetyEnvelope` 和 `PolicyGate` 保持端侧最终约束。
+
+### 与通信 baseline 对照
+
+| 策略 | Delivered | On-time | 带宽比例 | 发送字节 |
+| --- | ---: | ---: | ---: | ---: |
+| BestEffort，无压缩 | 89.82% | 89.82% | 0.768 | 3.22 GB |
+| Reliable + 压缩等级 4 | 97.52% | 97.52% | 0.522 | 2.19 GB |
+| rate scale 0.5 | 44.03% | 44.03% | 0.320 | 1.34 GB |
+
+### MVP 产物
+
+- 全局策略：`data/graco/mvp-global-policy.txt`
+- 客户端策略：`data/graco/mvp_clients/node_0/policy.txt`、`data/graco/mvp_clients/node_1/policy.txt`
+- 真实 normalized events：`data/graco/sample-ground/events.jsonl`
+- 高精度 RTK ground truth：`data/graco/sample-ground/ground_truth.jsonl`
+
+该结果验证的是“联邦学习向通信层提供策略建议”的闭环，不宣称完成 SLAM 精度验证。后续若要进行真实 ground/aerial 异构联邦实验，还需要接入 aerial ROS bag；DDS/netem 也不包含在本次 MVP 中。
